@@ -1,0 +1,29 @@
+# Dependencies
+node_modules/
+
+# Build output
+.next/
+out/
+build/
+
+# Environment files (contain secrets)
+.env
+.env.local
+.env.production
+.env*.local
+
+# Kubernetes secrets (never commit real secrets)
+k8s/backend/secret.yaml
+
+# macOS
+.DS_Store
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+
+# Misc
+*.pem
+.vercel
+*.tsbuildinfo
