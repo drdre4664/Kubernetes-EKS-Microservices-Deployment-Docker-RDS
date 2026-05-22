@@ -127,6 +127,24 @@ The order matters — the frontend needs the backend's public LoadBalancer URL b
 7. **Fix CORS** on the backend: set `CORS_ORIGIN` to the frontend LoadBalancer URL, `kubectl rollout restart deployment/backend`.
 8. **Verify end-to-end**: open the frontend LB URL, register, log in, post a review, confirm the row in RDS.
 
+## Key Lessons Learned
+
+| Problem | Root Cause | Fix |
+| --- | --- | --- |
+| `ImagePullBackOff` | Built on Mac ARM64, EKS needs AMD64 | `docker buildx build --platform linux/amd64` |
+| Books not loading | `NEXT_PUBLIC_API_URL` was internal cluster DNS — doesn't work in the browser | Rebuild the frontend image with the public backend LoadBalancer URL |
+| CORS blocked | Backend `ALLOWED_ORIGINS` was missing the frontend's public URL | Update the ConfigMap with the frontend LoadBalancer URL |
+| Pods stuck `Pending` | `t3.micro` nodes max ~4 pods (system pods take slots) | Set `replicas: 1` or use a larger node type |
+| `NodeCreationFailure` | Nodes created from the AWS Console can't join — missing `aws-auth` ConfigMap | Use `eksctl create nodegroup` instead |
+| RDS unreachable from EKS | RDS in the default VPC, EKS in its own VPC | Make RDS publicly accessible (or peer the VPCs) |
+
+## Docker Images
+
+| Image | Tag | Description |
+| --- | --- | --- |
+| `dre4664/book-review-backend` | `v1` | Node.js Express API (`linux/amd64`) |
+| `dre4664/book-review-frontend` | `v2` | Next.js with backend URL baked in (`linux/amd64`) |
+
 ## Local Development
 
 ```
